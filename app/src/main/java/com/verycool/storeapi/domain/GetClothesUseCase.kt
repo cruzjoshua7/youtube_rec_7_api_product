@@ -24,11 +24,4 @@ class GetClothesUseCase @Inject constructor(
             emit(UiState.ERROR(e))
         }
     }
-
-//    fun updatePrice(id:Int, newPrice:String){
-//        val response = repository.updatePrice()
-//        if(response.isSuccesful){
-//            emit(UiState.)
-//        }
-//    }
 }

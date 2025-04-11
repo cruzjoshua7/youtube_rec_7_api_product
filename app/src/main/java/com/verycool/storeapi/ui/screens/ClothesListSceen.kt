@@ -19,6 +19,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,9 @@ fun ClothesListScreen(
     modifier: Modifier = Modifier,
     viewModel: ClothesViewModel
 ){
+    LaunchedEffect (Unit){
+        viewModel.getClothesList()
+    }
     val state = viewModel.clothesState.collectAsState().value
     Column(
         modifier = Modifier
@@ -57,8 +61,8 @@ fun ClothesListScreen(
                         .fillMaxSize()
                         .padding(2.dp)
                 ) {
-                    items(state){ clothes ->
-                        ClothesCard(clothes)
+                    items(state) { clothes ->
+                        ClothesCard(clothes = clothes, viewModel = viewModel)
                     }
                 }
             }
@@ -72,9 +76,13 @@ fun ClothesListScreen(
 }
 
 @Composable
-fun ClothesCard(clothes : ClothesDetailsItemModel){
+fun ClothesCard(
+    clothes: ClothesDetailsItemModel,
+    viewModel: ClothesViewModel
+) {
     var newPrice by remember { mutableStateOf("") }
     val context = LocalContext.current
+
 
     Card(
         modifier = Modifier
@@ -87,8 +95,7 @@ fun ClothesCard(clothes : ClothesDetailsItemModel){
             AsyncImage(
                 model = clothes.image,
                 contentDescription = clothes.description,
-                modifier = Modifier
-                    .size(80.dp)
+                modifier = Modifier.size(80.dp)
             )
             Column {
                 Text("${clothes.rating}")
@@ -98,10 +105,10 @@ fun ClothesCard(clothes : ClothesDetailsItemModel){
                     onValueChange = { input ->
                         if (input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
                             newPrice = input
-                        } else{
-                            Toast.makeText(context, "Enter a valid monetary value",Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Enter a valid monetary value", Toast.LENGTH_SHORT).show()
                         }
-                                    },
+                    },
                     label = { Text("New Price") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -109,7 +116,13 @@ fun ClothesCard(clothes : ClothesDetailsItemModel){
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Button(
-                    onClick = { /* submit logic here */ },
+                    onClick = {
+                        if (newPrice.isNotBlank()) {
+                            viewModel.updatePrice(clothes.id ?: 0, newPrice)
+                        } else {
+                            Toast.makeText(context, "Please enter a price", Toast.LENGTH_SHORT).show()
+                        }
+                    },
                     modifier = Modifier.align(Alignment.End)
                 ) {
                     Text("Submit")

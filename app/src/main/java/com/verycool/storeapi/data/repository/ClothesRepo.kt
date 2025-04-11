@@ -7,4 +7,7 @@ import retrofit2.Response
 interface ClothesRepo {
 
     suspend fun getClothesList(): Response<List<ClothesDetailsItemModel>>
+
+    suspend fun updateProductPrice(product: ClothesDetailsItemModel):Response<ClothesDetailsItemModel>
+
 }
